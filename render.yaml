@@ -1,0 +1,14 @@
+# Exported from Render on 2024-11-27T15:12:28Z
+services:
+  - type: web
+    name: react-coffee-shop
+    runtime: static
+    repo: https://github.com/chromekiwi/react-coffee-shop
+    rootDir: src
+    buildCommand: npm install; npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+version: "1"
