@@ -4,7 +4,6 @@ services:
     name: react-coffee-shop
     runtime: static
     repo: https://github.com/chromekiwi/react-coffee-shop
-    rootDir: src
     buildCommand: npm install; npm run build
     staticPublishPath: dist
     routes:

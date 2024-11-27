@@ -14,7 +14,7 @@ export const url = {
   forgotPassword: "/forgot-password",
   resetPassword: "/reset-password",
   notFound: "*",
-  profile: "/:username",
+  profile: "/profile/:username",
 };
 
 const routes = [
@@ -45,6 +45,10 @@ const routes = [
       {
         url: url.profile,
         component: Profile,
+      },
+      {
+        url: url.notFound,
+        component: NotFound,
       },
     ],
   },
