@@ -37,3 +37,35 @@ export const signUpRequest = async (values: {
   });
   return user;
 };
+
+export const getMeRequest = async (values: {
+  uuid: string;
+}): Promise<User | null> => {
+  const user = await new Promise<User>((resolve, reject) => {
+    setTimeout(() => {
+      if (values.uuid === data.user.uuid) {
+        resolve(data.user);
+      } else {
+        reject(new Error("User not found"));
+      }
+    }, 1000);
+  });
+  return user;
+};
+
+export const editMeRequest = async (values: {
+  firstName: string;
+  lastName: string;
+  email: string;
+}): Promise<User | null> => {
+  const user = await new Promise<User>((resolve) => {
+    setTimeout(() => {
+      data.user = {
+        ...data.user,
+        ...values,
+      };
+      resolve(data.user);
+    }, 1000);
+  });
+  return user;
+};

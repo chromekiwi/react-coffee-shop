@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import clsx from "clsx";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,6 +24,8 @@ import { url } from "@/router";
 import { account } from "@/lib/schemas/account";
 import { en } from "@/lib/languages/en";
 import { useAccountContext } from "@/hooks/useAccount";
+
+const FORM_KEY = "signUpFormData";
 
 const formSchema = z
   .object({
@@ -69,6 +72,25 @@ export default function SignInForm() {
     },
   });
 
+  useEffect(() => {
+    const formData = localStorage.getItem(FORM_KEY);
+    if (formData) {
+      const { firstName, lastName, email } = JSON.parse(formData);
+      form.reset({ firstName, lastName, email });
+    }
+  }, [form]);
+
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      const { firstName, lastName, email } = value;
+      localStorage.setItem(
+        FORM_KEY,
+        JSON.stringify({ firstName, lastName, email })
+      );
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
@@ -76,6 +98,7 @@ export default function SignInForm() {
     const user = await signUp(values);
     if (user) {
       navigate(url.home);
+      return;
     }
   }
 

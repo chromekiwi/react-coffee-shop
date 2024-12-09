@@ -1,7 +1,12 @@
 import React, { createContext, useState, useEffect, ReactNode } from "react";
 
-import { signInRequest, signUpRequest } from "@/routes/account.routes";
-import { User, UserSignIn, UserSignUp } from "@/interfaces/user";
+import {
+  editMeRequest,
+  getMeRequest,
+  signInRequest,
+  signUpRequest,
+} from "@/routes/account.routes";
+import { GetMe, EditMe, User, UserSignIn, UserSignUp } from "@/interfaces/user";
 
 interface AccountContextProps {
   isAuthenticated: boolean;
@@ -14,6 +19,12 @@ interface AccountContextProps {
     lastName: string;
     email: string;
     password: string;
+  }) => Promise<User | null>;
+  getMe: (values: { uuid: string }) => Promise<User | null>;
+  editMe: (values: {
+    firstName: string;
+    lastName: string;
+    email: string;
   }) => Promise<User | null>;
   signOut: () => void;
   setError: React.Dispatch<React.SetStateAction<string[]>>;
@@ -34,6 +45,7 @@ const AccountProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       const user = await signInRequest(values);
       setIsAuthenticated(true);
       setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
       return user;
     } catch (error) {
       if (error instanceof Error) {
@@ -50,6 +62,7 @@ const AccountProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       const user = await signUpRequest(values);
       setIsAuthenticated(true);
       setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
       return user;
     } catch (error) {
       if (error instanceof Error) {
@@ -64,13 +77,56 @@ const AccountProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const signOut = () => {
     setIsAuthenticated(false);
     setUser(null);
+    localStorage.removeItem("user");
   };
+
+  const getMe = async (values: GetMe): Promise<User | null> => {
+    try {
+      const user = await getMeRequest(values);
+      setIsAuthenticated(true);
+      setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
+      return user;
+    } catch (error) {
+      if (error instanceof Error) {
+        setError([error.message]);
+      } else {
+        setError(["An unknown error occurred"]);
+      }
+      return null;
+    }
+  };
+
+  const editMe = async (values: EditMe): Promise<User | null> => {
+    try {
+      const user = await editMeRequest(values);
+      setIsAuthenticated(true);
+      setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
+      return user;
+    } catch (error) {
+      if (error instanceof Error) {
+        setError([error.message]);
+      } else {
+        setError(["An unknown error occurred"]);
+      }
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (error.length > 0) {
       setErrorAnimation(false);
       const animationTimer = setTimeout(() => setErrorAnimation(true), 3000);
-      const clearErrorTimer = setTimeout(() => setError([]), 3500); // Adjust timing to match fade-out duration
+      const clearErrorTimer = setTimeout(() => setError([]), 4000);
       return () => {
         clearTimeout(animationTimer);
         clearTimeout(clearErrorTimer);
@@ -88,6 +144,8 @@ const AccountProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         signIn,
         signUp,
         signOut,
+        getMe,
+        editMe,
         setError,
       }}
     >

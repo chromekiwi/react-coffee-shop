@@ -16,3 +16,13 @@ export interface UserSignUp {
   email: string;
   password: string;
 }
+
+export interface GetMe {
+  uuid: string;
+}
+
+export interface EditMe {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
